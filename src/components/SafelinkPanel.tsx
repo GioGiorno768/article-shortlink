@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Link as LinkIcon, Lock, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFingerprint } from "@/hooks/useFingerprint";
 
 interface SafelinkPanelProps {
   token: string;
@@ -21,6 +22,9 @@ export default function SafelinkPanel({
   const [timeLeft, setTimeLeft] = useState(10);
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // 🛡️ Device Fingerprinting for Anti-Fraud
+  const { visitorId, loading: fingerprintLoading } = useFingerprint();
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -58,9 +62,10 @@ export default function SafelinkPanel({
         return;
       }
 
-      // 2. Token berhasil diaktivasi, redirect ke continue page
+      // 2. Token berhasil diaktivasi, redirect ke continue page dengan visitor_id
       setTimeout(() => {
-        const mainAppUrl = `http://localhost:3000/continue?code=${code}&token=${token}`;
+        const visitorParam = visitorId ? `&visitor_id=${visitorId}` : "";
+        const mainAppUrl = `http://localhost:3000/continue?code=${code}&token=${token}${visitorParam}`;
         window.location.href = mainAppUrl;
       }, 500);
     } catch (error) {
