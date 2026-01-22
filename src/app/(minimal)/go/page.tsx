@@ -35,7 +35,7 @@ export default function GuestGoPage() {
     const fetchSession = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/links/session/${sessionId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}`
         );
         const data = await response.json();
 
@@ -80,7 +80,7 @@ export default function GuestGoPage() {
     try {
       // Call continue endpoint to get destination URL
       const response = await fetch(
-        `http://localhost:8000/api/links/${sessionData.code}/continue`,
+        `${process.env.NEXT_PUBLIC_API_URL}/links/${sessionData.code}/continue`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

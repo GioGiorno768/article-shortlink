@@ -39,7 +39,7 @@ export function useStepValidation({
     const validateStep = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/links/${code}/validate-step`,
+          `${process.env.NEXT_PUBLIC_API_URL}/links/${code}/validate-step`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

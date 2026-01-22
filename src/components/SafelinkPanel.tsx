@@ -71,7 +71,7 @@ export default function SafelinkPanel({
     try {
       // 🛡️ Step 1: Call complete-step API to mark this step as completed
       const completeResponse = await fetch(
-        `http://localhost:8000/api/links/${code}/complete-step`,
+        `${process.env.NEXT_PUBLIC_API_URL}/links/${code}/complete-step`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,7 +100,7 @@ export default function SafelinkPanel({
       if (is_complete) {
         // All steps done! Activate token and go to destination
         const activateResponse = await fetch(
-          `http://localhost:8000/api/links/${code}/activate-token`,
+          `${process.env.NEXT_PUBLIC_API_URL}/links/${code}/activate-token`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -117,11 +117,11 @@ export default function SafelinkPanel({
         }
 
         // Redirect to continue page (destination) - use session ID
-        window.open(`http://localhost:3000/continue?s=${sessionId}`, "_blank");
+        window.open(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`, "_blank");
       } else {
         // More steps to go - update session step and redirect to next step
         await fetch(
-          `http://localhost:8000/api/links/session/${sessionId}/step`,
+          `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}/step`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
