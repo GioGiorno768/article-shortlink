@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2, ShieldCheck, ArrowRight } from "lucide-react";
 
@@ -13,7 +13,7 @@ interface SessionData {
   is_guest: boolean;
 }
 
-export default function GuestGoPage() {
+function GuestGoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -35,7 +35,7 @@ export default function GuestGoPage() {
     const fetchSession = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}`,
         );
         const data = await response.json();
 
@@ -85,7 +85,7 @@ export default function GuestGoPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token: sessionData.token }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -146,8 +146,8 @@ export default function GuestGoPage() {
               {status === "loading"
                 ? "Checking your connection..."
                 : status === "redirecting"
-                ? "Redirecting..."
-                : "Secure Connection Verified"}
+                  ? "Redirecting..."
+                  : "Secure Connection Verified"}
             </h1>
             <p className="text-sm text-gray-500">Shortlinkmu Security System</p>
           </div>
@@ -204,5 +204,19 @@ export default function GuestGoPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function GuestGoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <GuestGoContent />
+    </Suspense>
   );
 }

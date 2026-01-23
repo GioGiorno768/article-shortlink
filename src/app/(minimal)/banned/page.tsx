@@ -1,10 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { ShieldX, ArrowLeft, AlertTriangle, Home } from "lucide-react";
-import Link from "next/link";
+import { ShieldX, AlertTriangle } from "lucide-react";
 
-export default function BannedPage() {
+function BannedContent() {
   const searchParams = useSearchParams();
   const reason = searchParams.get("reason") || "";
 
@@ -46,8 +46,6 @@ export default function BannedPage() {
               </p>
             </div>
           </div>
-
-          
         </div>
 
         {/* Footer */}
@@ -56,5 +54,19 @@ export default function BannedPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function BannedPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
+      <BannedContent />
+    </Suspense>
   );
 }
