@@ -3,7 +3,7 @@
 import { useSearchParams, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ArticleLayout from "@/components/ArticleLayout";
-import SafelinkPanel from "@/components/SafelinkPanel";
+// import SafelinkPanel from "@/components/SafelinkPanel"; // Deprecated - using new multi-step flow
 
 // Dummy Content Generator based on slug
 const getArticleData = (slug: string) => {
@@ -110,10 +110,13 @@ export default function ArticlePage() {
         </div>
       </ArticleLayout>
 
-      {/* SAFELINK PANEL - Only shows if token is present */}
-      {hasToken && (
-        <SafelinkPanel token={token} code={code} articleSlug={slug} />
-      )}
+      {/* SAFELINK PANEL - Deprecated: This page uses the old flow.
+          The new multi-step safelink flow uses /article/step1, step2, step3 pages.
+          This panel is disabled until this page is migrated or removed.
+      */}
+      {/* {hasToken && (
+        <SafelinkPanel token={token} code={code} step={1} maxSteps={1} adLevel={1} sessionId="" />
+      )} */}
     </>
   );
 }

@@ -15,6 +15,7 @@ interface SafelinkPanelProps {
   maxSteps: number; // Total steps based on ad_level
   adLevel: number; // For ad intensity control
   sessionId: string; // 🔐 Session ID for clean URLs
+  
 }
 
 export default function SafelinkPanel({
