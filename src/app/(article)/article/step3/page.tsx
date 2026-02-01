@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import ArticleLayout from "@/components/ArticleLayout";
 import SafelinkPanel from "@/components/SafelinkPanel";
 import { useSession } from "@/hooks/useSession";
+import Link from "next/link";
 
 function Step3Content() {
   const { sessionId, sessionData, isLoading, error } = useSession();
@@ -42,6 +43,13 @@ function Step3Content() {
         date="December 18, 2025"
         image="https://picsum.photos/seed/security-cyber/1200/675"
       >
+        <Link
+          href="https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375"
+          target="_blank"
+          className="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded"
+        >
+          Download Now
+        </Link>
         {/* Article Content */}
         <p className="lead text-xl text-gray-600 dark:text-gray-300">
           As cyber threats become more sophisticated, protecting your digital
