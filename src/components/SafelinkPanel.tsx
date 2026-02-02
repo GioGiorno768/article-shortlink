@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Lock, ChevronDown, ExternalLink, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFingerprint } from "@/hooks/useFingerprint";
+import { getRandomArticleSlug } from "@/hooks/useMonetizationSession";
 
 type PanelState = "IDLE" | "COUNTING" | "SCROLL" | "READY";
 
@@ -15,7 +16,6 @@ interface SafelinkPanelProps {
   maxSteps: number; // Total steps based on ad_level
   adLevel: number; // For ad intensity control
   sessionId: string; // 🔐 Session ID for clean URLs
-  
 }
 
 export default function SafelinkPanel({
@@ -77,7 +77,7 @@ export default function SafelinkPanel({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token, step }),
-        }
+        },
       );
 
       const completeData = await completeResponse.json();
@@ -106,7 +106,7 @@ export default function SafelinkPanel({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token }),
-          }
+          },
         );
 
         const activateData = await activateResponse.json();
@@ -117,20 +117,22 @@ export default function SafelinkPanel({
           return;
         }
 
-        // Redirect to continue page (destination) - use session ID
-        window.open(`${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`, "_blank");
+        // Redirect to continue page with session ID
+        window.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`;
       } else {
-        // More steps to go - update session step and redirect to next step
+        // More steps to go - update session step in backend
         await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}/step`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ step: next_step }),
-          }
+          },
         );
 
-        window.open(`/article/step${next_step}?s=${sessionId}`, "_blank");
+        // Navigate to random article (clean URL)
+        const randomSlug = getRandomArticleSlug();
+        window.location.href = `/article/${randomSlug}`;
       }
     } catch (error) {
       console.error("Error:", error);
@@ -177,10 +179,10 @@ export default function SafelinkPanel({
                     state === "IDLE"
                       ? "0%"
                       : state === "COUNTING"
-                      ? `${((5 - countdown) / 5) * 60}%`
-                      : state === "SCROLL"
-                      ? "60%"
-                      : "100%",
+                        ? `${((5 - countdown) / 5) * 60}%`
+                        : state === "SCROLL"
+                          ? "60%"
+                          : "100%",
                 }}
                 transition={{ duration: 0.3 }}
               />
@@ -276,7 +278,7 @@ export default function SafelinkPanel({
             disabled={isLoading}
             className={cn(
               "flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-10 py-4 text-lg font-bold text-white shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98] transition-all",
-              isLoading && "cursor-wait opacity-80"
+              isLoading && "cursor-wait opacity-80",
             )}
           >
             {isLoading ? (
