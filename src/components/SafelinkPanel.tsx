@@ -117,8 +117,15 @@ export default function SafelinkPanel({
           return;
         }
 
-        // Redirect to continue page with session ID
-        window.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`;
+        // Redirect to continue page with session ID (open in new tab)
+        window.open(
+          `${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`,
+          "_blank",
+        );
+
+        // Redirect current tab to ad page
+        window.location.href =
+          "https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375";
       } else {
         // More steps to go - update session step in backend
         await fetch(
@@ -130,9 +137,13 @@ export default function SafelinkPanel({
           },
         );
 
-        // Navigate to random article (clean URL)
+        // Navigate to random article (open in new tab)
         const randomSlug = getRandomArticleSlug();
-        window.location.href = `/article/${randomSlug}`;
+        window.open(`/article/${randomSlug}`, "_blank");
+
+        // Redirect current tab to ad page
+        window.location.href =
+          "https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375";
       }
     } catch (error) {
       console.error("Error:", error);
