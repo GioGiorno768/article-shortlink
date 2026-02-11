@@ -7,6 +7,12 @@ import { cn } from "@/lib/utils";
 import { useFingerprint } from "@/hooks/useFingerprint";
 import { getRandomArticleSlug } from "@/hooks/useMonetizationSession";
 
+// Ad redirect URL based on environment
+const AD_REDIRECT_URL =
+  process.env.NEXT_PUBLIC_AD_MODE === "live"
+    ? "https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375"
+    : "/ad";
+
 type PanelState = "IDLE" | "COUNTING" | "SCROLL" | "READY";
 
 interface SafelinkPanelProps {
@@ -123,9 +129,8 @@ export default function SafelinkPanel({
           "_blank",
         );
 
-        // Redirect current tab to ad page
-        window.location.href =
-          "https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375";
+        // Redirect current tab to ad page (dummy in dev, live in production)
+        window.location.href = AD_REDIRECT_URL;
       } else {
         // More steps to go - update session step in backend
         await fetch(
@@ -141,9 +146,8 @@ export default function SafelinkPanel({
         const randomSlug = getRandomArticleSlug();
         window.open(`/article/${randomSlug}`, "_blank");
 
-        // Redirect current tab to ad page
-        window.location.href =
-          "https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375";
+        // Redirect current tab to ad page (dummy in dev, live in production)
+        window.location.href = AD_REDIRECT_URL;
       }
     } catch (error) {
       console.error("Error:", error);
