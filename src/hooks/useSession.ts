@@ -11,6 +11,7 @@ export interface SessionData {
   max_steps: number;
   ad_level: number;
   is_guest: boolean;
+  min_wait_seconds: number;
 }
 
 interface UseSessionResult {
@@ -40,7 +41,7 @@ export function useSession(): UseSessionResult {
     const fetchSession = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/links/session/${sessionId}`,
         );
 
         const data = await response.json();

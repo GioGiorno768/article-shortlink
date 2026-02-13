@@ -13,6 +13,7 @@ export interface MonetizationSession {
   step: number;
   maxSteps: number;
   adLevel: number;
+  minWaitSeconds: number;
 }
 
 /**
@@ -159,6 +160,7 @@ export function useMonetizationSession() {
             step: apiData.step,
             maxSteps: apiData.max_steps,
             adLevel: apiData.ad_level,
+            minWaitSeconds: apiData.min_wait_seconds ?? 8,
           };
 
           // Store session ID to cookie (30 min auto-expiry)
@@ -189,6 +191,7 @@ export function useMonetizationSession() {
             step: apiData.step,
             maxSteps: apiData.max_steps,
             adLevel: apiData.ad_level,
+            minWaitSeconds: apiData.min_wait_seconds ?? 8,
           };
 
           setSession(existingSession);

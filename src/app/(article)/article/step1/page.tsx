@@ -33,7 +33,8 @@ function Step1Content() {
     );
   }
 
-  const { code, token, step, max_steps, ad_level } = sessionData;
+  const { code, token, step, max_steps, ad_level, min_wait_seconds } =
+    sessionData;
 
   return (
     <>
@@ -133,6 +134,7 @@ function Step1Content() {
         maxSteps={max_steps}
         adLevel={ad_level}
         sessionId={sessionId}
+        minWaitSeconds={min_wait_seconds}
       />
     </>
   );

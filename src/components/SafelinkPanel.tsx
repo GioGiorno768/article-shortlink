@@ -22,6 +22,7 @@ interface SafelinkPanelProps {
   maxSteps: number; // Total steps based on ad_level
   adLevel: number; // For ad intensity control
   sessionId: string; // 🔐 Session ID for clean URLs
+  minWaitSeconds?: number; // ⏱️ Dynamic countdown from admin settings
 }
 
 export default function SafelinkPanel({
@@ -31,9 +32,10 @@ export default function SafelinkPanel({
   maxSteps,
   adLevel,
   sessionId,
+  minWaitSeconds = 8,
 }: SafelinkPanelProps) {
   const [state, setState] = useState<PanelState>("IDLE");
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(minWaitSeconds);
   const [isLoading, setIsLoading] = useState(false);
   const continueButtonRef = useRef<HTMLDivElement>(null);
 
@@ -194,7 +196,7 @@ export default function SafelinkPanel({
                     state === "IDLE"
                       ? "0%"
                       : state === "COUNTING"
-                        ? `${((5 - countdown) / 5) * 60}%`
+                        ? `${((minWaitSeconds - countdown) / minWaitSeconds) * 60}%`
                         : state === "SCROLL"
                           ? "60%"
                           : "100%",

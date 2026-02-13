@@ -155,6 +155,7 @@ export default function ArticlePage() {
           maxSteps={session.maxSteps}
           adLevel={session.adLevel}
           sessionId={session.sessionId}
+          minWaitSeconds={session.minWaitSeconds}
         />
       )}
     </>
