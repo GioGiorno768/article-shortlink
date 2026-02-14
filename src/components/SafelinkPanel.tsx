@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Lock, ChevronDown, ExternalLink, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ interface SafelinkPanelProps {
   adLevel: number; // For ad intensity control
   sessionId: string; // 🔐 Session ID for clean URLs
   minWaitSeconds?: number; // ⏱️ Dynamic countdown from admin settings
+  children?: ReactNode; // Article content rendered between card and continue button
 }
 
 export default function SafelinkPanel({
@@ -33,6 +34,7 @@ export default function SafelinkPanel({
   adLevel,
   sessionId,
   minWaitSeconds = 8,
+  children,
 }: SafelinkPanelProps) {
   const [state, setState] = useState<PanelState>("IDLE");
   const [countdown, setCountdown] = useState(minWaitSeconds);
@@ -160,13 +162,13 @@ export default function SafelinkPanel({
 
   return (
     <>
-      {/* Fixed Bottom Panel */}
+      {/* Inline Panel - Above Article Content */}
       <motion.div
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6"
+        className="not-prose mb-8"
       >
-        <div className="mx-auto max-w-xl overflow-hidden rounded-2xl bg-white/95 shadow-2xl backdrop-blur-md border border-gray-200/50 dark:bg-gray-900/95 dark:border-gray-800">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-lg border border-gray-200/50 dark:bg-gray-900 dark:border-gray-800">
           <div className="p-5">
             {/* Header */}
             <div className="mb-4 flex items-center justify-between">
@@ -258,7 +260,7 @@ export default function SafelinkPanel({
                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg hover:shadow-green-500/25 active:scale-[0.98] transition-all"
                   >
                     <ChevronDown className="h-5 w-5 animate-bounce" />
-                    Scroll Down
+                    Next
                   </button>
                 </motion.div>
               )}
@@ -282,13 +284,16 @@ export default function SafelinkPanel({
         </div>
       </motion.div>
 
+      {/* Article content flows here between card and continue button */}
+      {children}
+
       {/* Continue Button at bottom of page */}
       {state === "READY" && (
         <motion.div
           ref={continueButtonRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-16 mb-32 flex justify-center"
+          className="not-prose mt-16 mb-32 flex justify-center"
         >
           <button
             onClick={handleContinue}

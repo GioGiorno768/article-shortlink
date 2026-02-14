@@ -86,78 +86,138 @@ export default function ArticlePage() {
         tags={articleTags}
         currentSlug={article.slug}
       >
-        {/* Article Content */}
-        <div dangerouslySetInnerHTML={{ __html: article.content }} />
-
-        {/* Related Articles */}
-        {relatedArticles.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
-              Artikel Terkait
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {relatedArticles.map((related) => (
-                <Link
-                  key={related.slug}
-                  href={`/article/${related.slug}`}
-                  className="group block rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300"
-                >
-                  {/* Image */}
-                  <div className="relative aspect-video overflow-hidden">
-                    <img
-                      src={related.image}
-                      alt={related.title}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span
-                      className={`absolute top-3 left-3 px-3 py-1 text-white text-xs font-semibold rounded-full ${getCategoryColor(
-                        related.category,
-                      )}`}
-                    >
-                      {related.category}
-                    </span>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-5">
-                    <h3 className="font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors mb-2">
-                      {related.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">
-                      {related.excerpt}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Back to Home */}
-        <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+        {isMonetized && session ? (
+          <SafelinkPanel
+            token={session.token}
+            code={session.code}
+            step={session.step}
+            maxSteps={session.maxSteps}
+            adLevel={session.adLevel}
+            sessionId={session.sessionId}
+            minWaitSeconds={session.minWaitSeconds}
           >
-            ← Kembali ke Beranda
-          </Link>
-        </div>
-      </ArticleLayout>
+            {/* Article Content */}
+            <div dangerouslySetInnerHTML={{ __html: article.content }} />
 
-      {/* Show SafelinkPanel if in monetization session */}
-      {isMonetized && session && (
-        <SafelinkPanel
-          token={session.token}
-          code={session.code}
-          step={session.step}
-          maxSteps={session.maxSteps}
-          adLevel={session.adLevel}
-          sessionId={session.sessionId}
-          minWaitSeconds={session.minWaitSeconds}
-        />
-      )}
+            {/* Related Articles */}
+            {relatedArticles.length > 0 && (
+              <div className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
+                  Artikel Terkait
+                </h2>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {relatedArticles.map((related) => (
+                    <Link
+                      key={related.slug}
+                      href={`/article/${related.slug}`}
+                      className="group block rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300"
+                    >
+                      {/* Image */}
+                      <div className="relative aspect-video overflow-hidden">
+                        <img
+                          src={related.image}
+                          alt={related.title}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span
+                          className={`absolute top-3 left-3 px-3 py-1 text-white text-xs font-semibold rounded-full ${getCategoryColor(
+                            related.category,
+                          )}`}
+                        >
+                          {related.category}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-5">
+                        <h3 className="font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors mb-2">
+                          {related.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 line-clamp-2">
+                          {related.excerpt}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Back to Home */}
+            <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+              >
+                ← Kembali ke Beranda
+              </Link>
+            </div>
+          </SafelinkPanel>
+        ) : (
+          <>
+            {/* Article Content */}
+            <div dangerouslySetInnerHTML={{ __html: article.content }} />
+
+            {/* Related Articles */}
+            {relatedArticles.length > 0 && (
+              <div className="mt-16 pt-12 border-t border-gray-100 dark:border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
+                  Artikel Terkait
+                </h2>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {relatedArticles.map((related) => (
+                    <Link
+                      key={related.slug}
+                      href={`/article/${related.slug}`}
+                      className="group block rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300"
+                    >
+                      {/* Image */}
+                      <div className="relative aspect-video overflow-hidden">
+                        <img
+                          src={related.image}
+                          alt={related.title}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <span
+                          className={`absolute top-3 left-3 px-3 py-1 text-white text-xs font-semibold rounded-full ${getCategoryColor(
+                            related.category,
+                          )}`}
+                        >
+                          {related.category}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-5">
+                        <h3 className="font-bold text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors mb-2">
+                          {related.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 line-clamp-2">
+                          {related.excerpt}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Back to Home */}
+            <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+              >
+                ← Kembali ke Beranda
+              </Link>
+            </div>
+          </>
+        )}
+      </ArticleLayout>
     </>
   );
 }
