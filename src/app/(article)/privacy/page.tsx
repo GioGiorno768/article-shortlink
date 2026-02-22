@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Kebijakan Privasi",
+  description:
+    "Kebijakan privasi Technosia. Pelajari bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.",
+  openGraph: {
+    title: "Kebijakan Privasi — Technosia",
+    description:
+      "Kebijakan privasi Technosia tentang pengumpulan dan penggunaan data.",
+    url: "https://technosia.web.id/privacy",
+  },
+};
 
 export default function PrivacyPage() {
   return (

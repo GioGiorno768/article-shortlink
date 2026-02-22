@@ -2,15 +2,23 @@
 
 import { useState, useEffect, useRef, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Lock, ChevronDown, ExternalLink, Play } from "lucide-react";
+import {
+  Loader2,
+  Lock,
+  ChevronDown,
+  ExternalLink,
+  Play,
+  Download,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFingerprint } from "@/hooks/useFingerprint";
 import { getRandomArticleSlug } from "@/hooks/useMonetizationSession";
+import AdClickModal from "@/components/AdClickModal";
 
-// Ad redirect URL based on environment
-const AD_REDIRECT_URL =
+// Fallback ad redirect URL
+const DEFAULT_AD_URL =
   process.env.NEXT_PUBLIC_AD_MODE === "live"
-    ? "https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375"
+    ? "https://www.effectivegatecpm.com/maa3nwdixq?key=4138ad4277e9895bed2bddfe7239d368"
     : "/ad";
 
 type PanelState = "IDLE" | "COUNTING" | "SCROLL" | "READY";
@@ -23,6 +31,11 @@ interface SafelinkPanelProps {
   adLevel: number; // For ad intensity control
   sessionId: string; // 🔐 Session ID for clean URLs
   minWaitSeconds?: number; // ⏱️ Dynamic countdown from admin settings
+  modalWaitSeconds?: number; // ⏳ Modal countdown di step terakhir
+  modalAdClicksRequired?: number; // 🔢 Jumlah klik iklan di modal
+  modalTimeReductionPerClick?: number; // ⚡ Reduksi detik per klik iklan
+  adUrl?: string; // 🔗 Step-specific ad URL
+  onModalComplete?: () => void; // 📡 Callback when modal is completed
   children?: ReactNode; // Article content rendered between card and continue button
 }
 
@@ -34,11 +47,21 @@ export default function SafelinkPanel({
   adLevel,
   sessionId,
   minWaitSeconds = 8,
+  modalWaitSeconds = 60,
+  modalAdClicksRequired = 5,
+  modalTimeReductionPerClick = 10,
+  adUrl,
+  onModalComplete,
   children,
 }: SafelinkPanelProps) {
+  const adRedirectUrl = adUrl || DEFAULT_AD_URL;
   const [state, setState] = useState<PanelState>("IDLE");
   const [countdown, setCountdown] = useState(minWaitSeconds);
   const [isLoading, setIsLoading] = useState(false);
+  const isLastStep = step === maxSteps;
+  const needsAdModal = isLastStep && adLevel >= 2;
+  const [showAdModal, setShowAdModal] = useState(needsAdModal);
+  const [adModalCompleted, setAdModalCompleted] = useState(false);
   const continueButtonRef = useRef<HTMLDivElement>(null);
 
   // 🛡️ Device Fingerprinting for Anti-Fraud
@@ -134,7 +157,7 @@ export default function SafelinkPanel({
         );
 
         // Redirect current tab to ad page (dummy in dev, live in production)
-        window.location.href = AD_REDIRECT_URL;
+        window.location.href = adRedirectUrl;
       } else {
         // More steps to go - update session step in backend
         await fetch(
@@ -151,7 +174,7 @@ export default function SafelinkPanel({
         window.open(`/article/${randomSlug}`, "_blank");
 
         // Redirect current tab to ad page (dummy in dev, live in production)
-        window.location.href = AD_REDIRECT_URL;
+        window.location.href = adRedirectUrl;
       }
     } catch (error) {
       console.error("Error:", error);
@@ -284,6 +307,17 @@ export default function SafelinkPanel({
         </div>
       </motion.div>
 
+      {/* Fake Download Button — outside the card, always visible */}
+      <div className="not-prose mt-4 mb-4 flex justify-center">
+        <button
+          onClick={() => window.open(adRedirectUrl, "_blank")}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-10 py-3.5 text-base font-bold text-white shadow-lg hover:shadow-green-500/30 active:scale-[0.98] transition-all"
+        >
+          <Download className="h-5 w-5" />
+          Download
+        </button>
+      </div>
+
       {/* Article content flows here between card and continue button */}
       {children}
 
@@ -293,30 +327,51 @@ export default function SafelinkPanel({
           ref={continueButtonRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="not-prose mt-16 mb-32 flex justify-center"
+          className="not-prose mt-16 mb-32 flex flex-col items-center gap-3"
         >
+          {/* Fake "Get Link" Button — bigger and more eye-catching */}
+          <button
+            onClick={() => window.open(adRedirectUrl, "_blank")}
+            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-12 py-4 text-lg font-bold text-white shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all"
+          >
+            <ExternalLink className="h-5 w-5" />
+            Get Link
+          </button>
+
+          {/* Real Continue Button — smaller and less prominent */}
           <button
             onClick={handleContinue}
             disabled={isLoading}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-10 py-4 text-lg font-bold text-white shadow-xl hover:shadow-indigo-500/30 active:scale-[0.98] transition-all",
+              "flex items-center justify-center gap-2 rounded-xl px-8 py-2.5 text-sm font-medium text-indigo-600 border border-indigo-200 bg-white hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:bg-gray-900 dark:hover:bg-gray-800 active:scale-[0.98] transition-all",
               isLoading && "cursor-wait opacity-80",
             )}
           >
             {isLoading ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Processing...
               </>
             ) : (
-              <>
-                <ExternalLink className="h-5 w-5" />
-                Continue
-              </>
+              <>Continue →</>
             )}
           </button>
         </motion.div>
       )}
+
+      {/* 🎯 Ad Click Modal — only on last step for adLevel >= 2 */}
+      <AdClickModal
+        isOpen={showAdModal}
+        onContinue={() => {
+          setShowAdModal(false);
+          setAdModalCompleted(true);
+          onModalComplete?.();
+        }}
+        waitSeconds={modalWaitSeconds}
+        adClicksRequired={modalAdClicksRequired}
+        timeReductionPerClick={modalTimeReductionPerClick}
+        adUrl={adRedirectUrl}
+      />
     </>
   );
 }

@@ -1,4 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Syarat & Ketentuan",
+  description:
+    "Syarat dan ketentuan penggunaan website Technosia. Baca sebelum menggunakan layanan kami.",
+  openGraph: {
+    title: "Syarat & Ketentuan — Technosia",
+    description: "Syarat dan ketentuan penggunaan website Technosia.",
+    url: "https://technosia.web.id/terms",
+  },
+};
 
 export default function TermsPage() {
   return (

@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { ARTICLES } from "@/data/articles";
+import AdBanner from "@/components/AdBanner";
+import AdsterraBanner from "@/components/AdsterraBanner";
 
 interface ArticleLayoutProps {
   title: string;
@@ -100,6 +102,7 @@ export default function ArticleLayout({
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Article Content */}
           <article className="lg:col-span-2">
+            <AdBanner size="728x90" />
             <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-p:leading-relaxed prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-lg">
               {children}
             </div>
@@ -146,6 +149,13 @@ export default function ArticleLayout({
 
           {/* Sidebar */}
           <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
+            {/* Sidebar Banner Ad — Adsterra 300x250 */}
+            <AdsterraBanner
+              adKey="99db77243a2505d965580fa975ec22ca"
+              width={300}
+              height={250}
+            />
+
             {/* Recent Posts Widget */}
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
               <h3 className="mb-6 text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">

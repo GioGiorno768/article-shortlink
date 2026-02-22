@@ -15,6 +15,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState(ARTICLES.slice(0, 5));
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -54,11 +55,11 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 w-full border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
+      <nav className="top-0 z-40 w-full border-b border-gray-100 bg-white/80 px-6 py-4 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="text-xl font-bold tracking-tighter">
-              Techno<span className="text-indigo-600">logia</span>
+              Techno<span className="text-indigo-600">sia</span>
             </Link>
             <div className="hidden gap-6 text-sm font-medium text-gray-500 md:flex dark:text-gray-400">
               {NAV_LINKS.map((link) => (
@@ -81,11 +82,36 @@ export default function Navbar() {
             >
               <Search className="h-5 w-5" />
             </button>
-            <button className="md:hidden rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800">
-              <Menu className="h-5 w-5" />
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+              aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950">
+            <div className="flex flex-col px-6 py-4 space-y-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="py-3 px-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-xl transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Search Modal */}

@@ -100,7 +100,9 @@ function GuestGoContent() {
       window.open(data.data.original_url, "_blank");
 
       // Redirect current tab to ad page
-      router.push("https://www.effectivegatecpm.com/zammjfnyd?key=f9378aa32061ceb38cb8ecd877de8375");
+      router.push(
+        "https://www.effectivegatecpm.com/maa3nwdixq?key=4138ad4277e9895bed2bddfe7239d368",
+      );
     } catch (error: unknown) {
       console.error(error);
       setStatus("error");

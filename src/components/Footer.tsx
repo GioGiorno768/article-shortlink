@@ -30,7 +30,7 @@ export default function Footer() {
               href="/"
               className="mb-4 block text-xl font-bold tracking-tighter"
             >
-              Techno<span className="text-indigo-600">logia</span>
+              Techno<span className="text-indigo-600">sia</span>
             </Link>
             <p className="max-w-xs text-sm text-gray-500 dark:text-gray-400">
               Portal berita dan informasi terkini seputar teknologi, keuangan,
@@ -76,7 +76,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-8 text-sm text-gray-500 md:flex-row dark:border-gray-800 dark:text-gray-400">
-          <p>© 2025 Technologia. Hak cipta dilindungi.</p>
+          <p>© 2026 Technosia. Hak cipta dilindungi.</p>
           <div className="flex gap-4">
             {SOCIAL_LINKS.map((link) => (
               <Link

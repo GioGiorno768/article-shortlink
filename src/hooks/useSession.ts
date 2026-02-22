@@ -12,6 +12,9 @@ export interface SessionData {
   ad_level: number;
   is_guest: boolean;
   min_wait_seconds: number;
+  modal_wait_seconds: number;
+  modal_ad_clicks_required: number;
+  modal_time_reduction_per_click: number;
 }
 
 interface UseSessionResult {
