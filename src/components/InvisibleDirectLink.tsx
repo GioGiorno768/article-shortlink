@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface InvisibleDirectLinkProps {
   /** The ad URL to open */
@@ -24,30 +24,35 @@ export default function InvisibleDirectLink({
 }: InvisibleDirectLinkProps) {
   const [isActive, setIsActive] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+  const isFirstMount = useRef(true);
 
   // Load click count from sessionStorage
   useEffect(() => {
     const stored = sessionStorage.getItem(storageKey);
-    if (stored) setClickCount(parseInt(stored, 10));
+    if (stored) {
+      const count = parseInt(stored, 10);
+      setClickCount(count);
+      // If already clicked before, don't activate immediately
+      if (count > 0) isFirstMount.current = false;
+    }
   }, [storageKey]);
 
-  // Activate overlay on interval — only when enabled
+  // Activate overlay: immediately on first load, then after interval
   useEffect(() => {
     if (!enabled || clickCount >= maxClicks) return;
 
-    const timer = setInterval(() => {
+    if (isFirstMount.current) {
+      // First time opening the page: activate immediately
+      isFirstMount.current = false;
       setIsActive(true);
-    }, intervalSeconds * 1000);
+    } else {
+      // After a click: wait for interval before re-activating
+      const timer = setTimeout(() => {
+        setIsActive(true);
+      }, intervalSeconds * 1000);
 
-    // Also activate after initial delay
-    const initialTimer = setTimeout(() => {
-      setIsActive(true);
-    }, intervalSeconds * 1000);
-
-    return () => {
-      clearInterval(timer);
-      clearTimeout(initialTimer);
-    };
+      return () => clearTimeout(timer);
+    }
   }, [intervalSeconds, clickCount, maxClicks, enabled]);
 
   const handleClick = useCallback(() => {
