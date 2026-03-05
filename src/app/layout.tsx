@@ -71,7 +71,6 @@ export const metadata: Metadata = {
     "70b3de18186dd048db2aaa806c225c9907c188ab":
       "70b3de18186dd048db2aaa806c225c9907c188ab",
     monetag: "0be7013df1b872d24e3f8dbbba1f8b86",
-    clckd: "d76490540736aed89fdd5589b2ad9c5d",
   },
 };
 
