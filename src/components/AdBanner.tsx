@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 
+
 const AD_REDIRECT_URL =
   process.env.NEXT_PUBLIC_AD_MODE === "live"
     ? "https://www.effectivegatecpm.com/maa3nwdixq?key=4138ad4277e9895bed2bddfe7239d368"
