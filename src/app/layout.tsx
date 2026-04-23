@@ -78,8 +78,7 @@ export const viewport: Viewport = {
   themeColor: "#4F46E5",
 };
 
-import InPagePush from "@/components/InPagePush";
-import Popunder from "@/components/Popunder";
+
 
 export default function RootLayout({
   children,
@@ -92,8 +91,6 @@ export default function RootLayout({
         <main className="min-h-screen bg-white dark:bg-gray-950">
           {children}
         </main>
-        <InPagePush />
-        <Popunder />
       </body>
     </html>
   );
