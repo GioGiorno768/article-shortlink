@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MousePointerClick, Timer, Check, ExternalLink } from "lucide-react";
+import { Timer, Check, ExternalLink, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdClickModalProps {
   isOpen: boolean;
   onContinue: () => void;
+  code: string; // 🛡️ For backend verification
+  token: string; // 🛡️ For backend verification
   waitSeconds?: number;
   adClicksRequired?: number;
   timeReductionPerClick?: number;
@@ -17,6 +19,8 @@ interface AdClickModalProps {
 export default function AdClickModal({
   isOpen,
   onContinue,
+  code,
+  token,
   waitSeconds = 60,
   adClicksRequired = 5,
   timeReductionPerClick = 10,
@@ -25,7 +29,33 @@ export default function AdClickModal({
   const [countdown, setCountdown] = useState(waitSeconds);
   const [adClicks, setAdClicks] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const [popupBlocked, setPopupBlocked] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const modalStartedRef = useRef(false);
+
+  // 🛡️ Notify backend when modal is shown (record server timestamp)
+  useEffect(() => {
+    if (!isOpen || modalStartedRef.current) return;
+
+    const startModal = async () => {
+      try {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/links/${code}/start-modal`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          },
+        );
+        modalStartedRef.current = true;
+      } catch (err) {
+        // Silent fail — backend will reject activation if modal wasn't started
+      }
+    };
+
+    startModal();
+  }, [isOpen, code, token]);
 
   // Countdown timer
   useEffect(() => {
@@ -46,33 +76,56 @@ export default function AdClickModal({
     };
   }, [isOpen, isReady]);
 
-  // Check if ad clicks complete
-  useEffect(() => {
-    if (adClicks >= adClicksRequired) {
-      setIsReady(true);
-      setCountdown(0);
-    }
-  }, [adClicks, adClicksRequired]);
-
-  // Handle ad click
+  // Handle ad click — 🛡️ Server-verified
   const handleAdClick = useCallback(() => {
-    window.open(adUrl, "_blank");
+    if (isRecording) return; // Prevent double-click spam
 
-    setAdClicks((prev) => {
-      const newCount = prev + 1;
-      return newCount;
-    });
+    // 🛡️ Fix #5: Check if popup was actually opened
+    const adWindow = window.open(adUrl, "_blank");
+    if (!adWindow) {
+      setPopupBlocked(true);
+      return;
+    }
+    setPopupBlocked(false);
 
-    // Reduce countdown
+    // 🛡️ Fix #1: Record click server-side
+    setIsRecording(true);
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/links/${code}/record-ad-click`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      },
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          setAdClicks(data.data.ad_clicks);
+          if (data.data.requirement_met) {
+            setIsReady(true);
+            setCountdown(0);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback: increment locally if backend unreachable
+        setAdClicks((prev) => prev + 1);
+      })
+      .finally(() => {
+        setIsRecording(false);
+      });
+
+    // Reduce countdown (client-side visual feedback)
     setCountdown((prev) => {
       const reduced = prev - timeReductionPerClick;
       if (reduced <= 0) {
-        setIsReady(true);
+        // Don't set isReady here — let server response control it
         return 0;
       }
       return reduced;
     });
-  }, [timeReductionPerClick]);
+  }, [timeReductionPerClick, code, token, adUrl, isRecording]);
 
   // Format seconds as mm:ss or just seconds
   const formatTime = (seconds: number) => {
@@ -116,11 +169,21 @@ export default function AdClickModal({
             </div>
 
             <div className="p-6 space-y-5">
+              {/* Popup Blocked Warning */}
+              {popupBlocked && (
+                <div className="flex items-center gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 p-3 text-sm text-amber-700 dark:text-amber-400">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <span>
+                    Popup diblokir. Izinkan popup pada situs ini untuk melanjutkan.
+                  </span>
+                </div>
+              )}
+
               {/* Option 1: Click Ads */}
               <div className="space-y-3">
                 <button
                   onClick={handleAdClick}
-                  disabled={adClicks >= adClicksRequired}
+                  disabled={adClicks >= adClicksRequired || isRecording}
                   className={cn(
                     "w-full flex items-center justify-center gap-3 rounded-xl px-5 py-4 text-base font-semibold transition-all active:scale-[0.98]",
                     adClicks >= adClicksRequired

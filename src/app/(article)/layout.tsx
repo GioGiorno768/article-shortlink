@@ -2,7 +2,7 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { WebSiteJsonLd, OrganizationJsonLd } from "@/components/JsonLd";
 import InPagePush from "@/components/InPagePush";
-import Popunder from "@/components/Popunder";
+// import Popunder from "@/components/Popunder";
 
 export default function ArticleLayout({
   children,
@@ -17,7 +17,7 @@ export default function ArticleLayout({
       {children}
       <Footer />
       <InPagePush />
-      <Popunder />
+      {/* <Popunder /> */}
     </>
   );
 }

@@ -59,7 +59,7 @@ export default function SafelinkPanel({
   const [countdown, setCountdown] = useState(minWaitSeconds);
   const [isLoading, setIsLoading] = useState(false);
   const isLastStep = step === maxSteps;
-  const needsAdModal = isLastStep && adLevel >= 2;
+  const needsAdModal = isLastStep && adLevel >= 4;
   const [showAdModal, setShowAdModal] = useState(needsAdModal);
   const [adModalCompleted, setAdModalCompleted] = useState(false);
   const continueButtonRef = useRef<HTMLDivElement>(null);
@@ -81,7 +81,12 @@ export default function SafelinkPanel({
 
   // Handle "Open" button click
   const handleOpen = () => {
-    setState("COUNTING");
+    // Skip countdown if modal was already shown (avoid double wait)
+    if (adModalCompleted) {
+      setState("SCROLL");
+    } else {
+      setState("COUNTING");
+    }
   };
 
   // Handle "Scroll Down" button click
@@ -100,7 +105,8 @@ export default function SafelinkPanel({
   const handleContinue = async () => {
     setIsLoading(true);
 
-    console.log("🔍 DEBUG SafelinkPanel:", { step, maxSteps, adLevel });
+    // 🛡️ Open blank window SYNCHRONOUSLY in click handler (popup blocker safe)
+    const newTab = window.open("about:blank", "_blank");
 
     try {
       // 🛡️ Step 1: Call complete-step API to mark this step as completed
@@ -117,10 +123,11 @@ export default function SafelinkPanel({
 
       if (!completeResponse.ok) {
         console.error("Complete step failed:", completeData);
+        newTab?.close(); // Close blank tab on error
         // If step validation fails, redirect to step 1
         if (completeData.data?.redirect) {
           alert(completeData.message || "Langkah tidak valid.");
-          window.open(`/article/step1?s=${sessionId}`, "_blank");
+          window.location.href = `/article/step1?s=${sessionId}`;
           return;
         }
         alert(completeData.message || "Gagal memproses langkah.");
@@ -145,16 +152,16 @@ export default function SafelinkPanel({
         const activateData = await activateResponse.json();
 
         if (!activateResponse.ok) {
+          newTab?.close(); // Close blank tab on error
           alert(activateData.message || "Gagal mengaktifkan token.");
           setIsLoading(false);
           return;
         }
 
-        // Redirect to continue page with session ID (open in new tab)
-        window.open(
-          `${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`,
-          "_blank",
-        );
+        // ✅ Update pre-opened tab with continue URL (popup blocker safe)
+        if (newTab) {
+          newTab.location.href = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/continue?s=${sessionId}`;
+        }
 
         // Redirect current tab to ad page (dummy in dev, live in production)
         window.location.href = adRedirectUrl;
@@ -169,15 +176,18 @@ export default function SafelinkPanel({
           },
         );
 
-        // Navigate to random article (open in new tab)
+        // ✅ Navigate to random article via pre-opened tab (popup blocker safe)
         const randomSlug = getRandomArticleSlug();
-        window.open(`/article/${randomSlug}`, "_blank");
+        if (newTab) {
+          newTab.location.href = `/article/${randomSlug}`;
+        }
 
         // Redirect current tab to ad page (dummy in dev, live in production)
         window.location.href = adRedirectUrl;
       }
     } catch (error) {
       console.error("Error:", error);
+      newTab?.close(); // Close blank tab on error
       alert("Terjadi kesalahan. Silakan coba lagi.");
       setIsLoading(false);
     }
@@ -332,7 +342,7 @@ export default function SafelinkPanel({
           {/* Fake "Get Link" Button — bigger and more eye-catching */}
           <button
             onClick={() => window.open(adRedirectUrl, "_blank")}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-12 py-4 text-lg font-bold text-white shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-10 py-3 text-lg font-bold text-white shadow-xl hover:shadow-green-500/30 active:scale-[0.98] transition-all"
           >
             <ExternalLink className="h-5 w-5" />
             Get Link
@@ -343,7 +353,7 @@ export default function SafelinkPanel({
             onClick={handleContinue}
             disabled={isLoading}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-xl px-8 py-2.5 text-sm font-medium text-indigo-600 border border-indigo-200 bg-white hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:bg-gray-900 dark:hover:bg-gray-800 active:scale-[0.98] transition-all",
+              "flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-sm font-medium text-indigo-600 border border-indigo-200 bg-white hover:bg-indigo-50 dark:text-indigo-400 dark:border-indigo-800 dark:bg-gray-900 dark:hover:bg-gray-800 active:scale-[0.98] transition-all",
               isLoading && "cursor-wait opacity-80",
             )}
           >
@@ -353,7 +363,7 @@ export default function SafelinkPanel({
                 Processing...
               </>
             ) : (
-              <>Continue →</>
+              <>Continue To Next Step →</>
             )}
           </button>
         </motion.div>
@@ -362,6 +372,8 @@ export default function SafelinkPanel({
       {/* 🎯 Ad Click Modal — only on last step for adLevel >= 2 */}
       <AdClickModal
         isOpen={showAdModal}
+        code={code}
+        token={token}
         onContinue={() => {
           setShowAdModal(false);
           setAdModalCompleted(true);
